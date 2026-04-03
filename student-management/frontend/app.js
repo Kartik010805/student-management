@@ -1,4 +1,4 @@
-const BASE_URL = "https://student-management-04jg.onrender.com";
+const BASE_URL = "https://student-management-04rg.onrender.com";
 
 // LOGIN
 function login() {
