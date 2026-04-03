@@ -3,13 +3,8 @@ package com.sms.student_management.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.core.userdetails.*;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.cors.*;
 
 import java.util.List;
@@ -21,56 +16,41 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
-                .cors(Customizer.withDefaults())  // enable CORS
-                .csrf(csrf -> csrf.disable())     // disable CSRF for API
+                .csrf(csrf -> csrf.disable())
+
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
                 .authorizeHttpRequests(auth -> auth
-                        // 🔥 VERY IMPORTANT: allow preflight requests
+
+                        // 🔥 VERY IMPORTANT (fix preflight)
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // allow public access if needed (optional)
-                        // .requestMatchers("/students/**").permitAll()
+                        // allow login + static files
+                        .requestMatchers("/", "/index.html", "/students.html", "/css/**", "/js/**").permitAll()
 
-                        // everything else requires auth
+                        // protect API
                         .anyRequest().authenticated()
                 )
-                .httpBasic(Customizer.withDefaults()); // basic auth
+
+                .httpBasic(httpBasic ->{});
 
         return http.build();
     }
 
-    // ✅ SINGLE CORS CONFIG (DO NOT CREATE ANOTHER CLASS)
+    // 🔥 GLOBAL CORS CONFIG (FINAL)
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of("*")); // allow all (for now)
+        config.setAllowedOrigins(List.of("*")); // for testing (later restrict)
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(false); // must be false when using "*"
+        config.setAllowCredentials(false); // important when using "*"
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
 
         return source;
-    }
-
-    // ✅ test user
-    @Bean
-    public InMemoryUserDetailsManager userDetailsService() {
-
-        UserDetails user = User
-                .withUsername("teacher")
-                .password("teacher123")
-                .roles("TEACHER")
-                .build();
-
-        return new InMemoryUserDetailsManager(user);
-    }
-
-    // ⚠️ ONLY for testing (no encryption)
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance();
     }
 }
