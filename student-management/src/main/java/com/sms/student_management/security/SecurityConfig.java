@@ -2,11 +2,11 @@ package com.sms.student_management.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.cors.*;
+import org.springframework.security.config.Customizer;
 
+import org.springframework.web.cors.*;
 import java.util.List;
 
 @Configuration
@@ -18,35 +18,27 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
 
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .cors(Customizer.withDefaults())
 
+                // 🔥 ALLOW EVERYTHING (like before)
                 .authorizeHttpRequests(auth -> auth
-
-                        // 🔥 VERY IMPORTANT (fix preflight)
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-                        // allow login + static files
-                        .requestMatchers("/", "/index.html", "/students.html", "/css/**", "/js/**").permitAll()
-
-                        // protect API
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
 
-                .httpBasic(httpBasic ->httpBasic.disable());
+                // enable basic (your JS uses it)
+                .httpBasic(Customizer.withDefaults());
 
         return http.build();
     }
 
-    // 🔥 GLOBAL CORS CONFIG (FINAL)
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of("*")); // for testing (later restrict)
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedOrigins(List.of("*"));
+        config.setAllowedMethods(List.of("*"));
         config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(false); // important when using "*"
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
