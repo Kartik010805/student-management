@@ -20,25 +20,25 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
-                .cors(Customizer.withDefaults()) // ✅ enables CORS
-                .csrf(csrf -> csrf.disable())
+                .cors(Customizer.withDefaults())   // ✅ enable CORS
+                .csrf(csrf -> csrf.disable())      // ✅ disable CSRF for APIs
                 .authorizeHttpRequests(auth -> auth
                         .anyRequest().authenticated()
                 )
-                .httpBasic(Customizer.withDefaults());
+                .httpBasic(Customizer.withDefaults()); // ✅ basic auth
 
         return http.build();
     }
 
-    // ✅ FIXED CORS CONFIG
+    // ✅ SINGLE CORS CONFIG (IMPORTANT)
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of("*"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 🔥 important
+        config.setAllowedOrigins(List.of("*"));  // allow all origins
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(false);
+        config.setAllowCredentials(false); // IMPORTANT with "*"
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
@@ -46,17 +46,19 @@ public class SecurityConfig {
         return source;
     }
 
+    // ✅ simple login user
     @Bean
     public InMemoryUserDetailsManager userDetailsService() {
-        UserDetails teacher = User
+        UserDetails user = User
                 .withUsername("teacher")
                 .password("teacher123")
                 .roles("TEACHER")
                 .build();
 
-        return new InMemoryUserDetailsManager(teacher);
+        return new InMemoryUserDetailsManager(user);
     }
 
+    // ⚠️ for testing only (no encoding)
     @Bean
     public PasswordEncoder passwordEncoder() {
         return NoOpPasswordEncoder.getInstance();
