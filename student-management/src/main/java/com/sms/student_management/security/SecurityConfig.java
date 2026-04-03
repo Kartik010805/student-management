@@ -16,53 +16,50 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
-                // ❌ disable CSRF (needed for API + JS fetch)
+                // APIs with fetch → disable CSRF
                 .csrf(csrf -> csrf.disable())
 
-                // ✅ enable CORS
+                // enable CORS
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-                // ✅ authorization rules
+                // routes
                 .authorizeHttpRequests(auth -> auth
-
-                        // 🔥 allow preflight requests (CRITICAL)
+                        // allow preflight
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         // allow static pages
                         .requestMatchers(
-                                "/",
-                                "/index.html",
-                                "/students.html",
-                                "/attendance.html",
-                                "/css/**",
-                                "/js/**"
+                                "/", "/index.html", "/students.html", "/attendance.html",
+                                "/css/**", "/js/**"
                         ).permitAll()
 
-                        // protect everything else
+                        // everything else needs auth
                         .anyRequest().authenticated()
                 )
 
-                // ❌ disable browser popup
-                .httpBasic(httpBasic -> httpBasic.disable())
+                // ✅ ENABLE basic auth (so your JS header works)
+                .httpBasic(httpBasic -> {})
 
-                // ✅ return 401 instead of popup
+                // ❌ remove browser popup behavior
                 .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint((req, res, e) -> res.setStatus(401))
+                        .authenticationEntryPoint((req, res, e) -> {
+                            res.setStatus(401);
+                        })
                 );
 
         return http.build();
     }
 
-    // ✅ GLOBAL CORS CONFIG
+    // ✅ GLOBAL CORS
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of("*")); // allow all (for now)
+        config.setAllowedOrigins(List.of("*")); // for now
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(false); // must be false when using "*"
+        config.setAllowCredentials(false);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
