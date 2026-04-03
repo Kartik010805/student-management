@@ -1,12 +1,9 @@
-FROM openjdk:21-jdk
+FROM eclipse-temurin:17-jdk-alpine
 
 WORKDIR /app
 
-COPY . .
-
-RUN chmod +x mvnw
-RUN ./mvnw clean package -DskipTests
+COPY target/*.jar app.jar
 
 EXPOSE 8080
 
-CMD ["java", "-jar", "target/student-management-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
