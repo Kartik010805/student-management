@@ -16,50 +16,37 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
-                // APIs with fetch → disable CSRF
                 .csrf(csrf -> csrf.disable())
 
-                // enable CORS
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-                // routes
                 .authorizeHttpRequests(auth -> auth
-                        // allow preflight
+
+                        // 🔥 VERY IMPORTANT (fix preflight)
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // allow static pages
-                        .requestMatchers(
-                                "/", "/index.html", "/students.html", "/attendance.html",
-                                "/css/**", "/js/**"
-                        ).permitAll()
+                        // allow login + static files
+                        .requestMatchers("/", "/index.html", "/students.html", "/css/**", "/js/**").permitAll()
 
-                        // everything else needs auth
+                        // protect API
                         .anyRequest().authenticated()
                 )
 
-                // ✅ ENABLE basic auth (so your JS header works)
-                .httpBasic(httpBasic -> {})
-
-                // ❌ remove browser popup behavior
-                .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint((req, res, e) -> {
-                            res.setStatus(401);
-                        })
-                );
+                .httpBasic(httpBasic ->httpBasic.disable());
 
         return http.build();
     }
 
-    // ✅ GLOBAL CORS
+    // 🔥 GLOBAL CORS CONFIG (FINAL)
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of("*")); // for now
+        config.setAllowedOrigins(List.of("*")); // for testing (later restrict)
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(false);
+        config.setAllowCredentials(false); // important when using "*"
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
