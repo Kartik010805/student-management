@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Students</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container wide">
+
+    <h2>Student Dashboard</h2>
+
+    <button onclick="loadStudents()">Load Students</button>
+
+    <table id="studentTable">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Department</th>
+            <th>Year</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <hr>
+
+    <h3>Add Student</h3>
+
+    <input id="name" placeholder="Name">
+    <input id="email" placeholder="Email">
+    <input id="department" placeholder="Department">
+    <input id="year" placeholder="Year">
+
+    <button onclick="addStudent()">Add Student</button>
+
+    <br><br>
+    <a href="attendance.html">Go to Attendance →</a>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

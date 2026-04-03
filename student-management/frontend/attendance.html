@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Attendance</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container wide">
+
+    <h2>Attendance Panel</h2>
+
+    <input id="studentId" placeholder="Student ID">
+    <input id="date" type="date">
+
+    <select id="status">
+        <option>PRESENT</option>
+        <option>ABSENT</option>
+    </select>
+
+    <button onclick="markAttendance()">Submit</button>
+
+    <hr>
+
+    <button onclick="loadAttendance()">Load Attendance</button>
+
+    <table id="attendanceTable">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Student ID</th>
+            <th>Date</th>
+            <th>Status</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <br><br>
+    <a href="students.html">← Back</a>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
