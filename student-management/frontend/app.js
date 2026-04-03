@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:8081";
+const BASE_URL = "https://student-management-04jg.onrender.com";
 
 // LOGIN
 function login() {
@@ -17,12 +17,20 @@ function getAuth() {
     return "Basic " + token;
 }
 
+// HANDLE RESPONSE (important fix)
+function handleResponse(res) {
+    if (!res.ok) {
+        throw new Error("Request failed: " + res.status);
+    }
+    return res.json();
+}
+
 // LOAD STUDENTS
 function loadStudents() {
-    fetch(BASE_URL + "/students", {
+    fetch(`${BASE_URL}/students`, {
         headers: { "Authorization": getAuth() }
     })
-    .then(res => res.json())
+    .then(handleResponse)
     .then(data => {
         let tbody = document.querySelector("#studentTable tbody");
         tbody.innerHTML = "";
@@ -43,12 +51,13 @@ function loadStudents() {
                 </tr>
             `;
         });
-    });
+    })
+    .catch(err => console.error(err));
 }
 
 // ADD STUDENT
 function addStudent() {
-    fetch(BASE_URL + "/students", {
+    fetch(`${BASE_URL}/students`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -60,15 +69,25 @@ function addStudent() {
             department: document.getElementById("department").value,
             year: parseInt(document.getElementById("year").value)
         })
-    }).then(() => loadStudents());
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("Failed to add student");
+        loadStudents();
+    })
+    .catch(err => console.error(err));
 }
 
 // DELETE STUDENT
 function deleteStudent(id) {
-    fetch(BASE_URL + "/students/" + id, {
+    fetch(`${BASE_URL}/students/${id}`, {
         method: "DELETE",
         headers: { "Authorization": getAuth() }
-    }).then(() => loadStudents());
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("Delete failed");
+        loadStudents();
+    })
+    .catch(err => console.error(err));
 }
 
 // LOAD ATTENDANCE
@@ -81,10 +100,10 @@ function loadAttendance() {
         return;
     }
 
-    fetch(BASE_URL + "/attendance/student/" + id, {
+    fetch(`${BASE_URL}/attendance/student/${id}`, {
         headers: { "Authorization": getAuth() }
     })
-    .then(res => res.json())
+    .then(handleResponse)
     .then(data => {
         let tbody = document.querySelector("#attendanceTable tbody");
         tbody.innerHTML = "";
@@ -99,11 +118,13 @@ function loadAttendance() {
                 </tr>
             `;
         });
-    });
+    })
+    .catch(err => console.error(err));
 }
+
 // MARK ATTENDANCE
 function markAttendance() {
-    fetch(BASE_URL + "/attendance", {
+    fetch(`${BASE_URL}/attendance`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -114,5 +135,10 @@ function markAttendance() {
             date: document.getElementById("date").value,
             status: document.getElementById("status").value
         })
-    }).then(() => loadAttendance());
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("Attendance failed");
+        loadAttendance();
+    })
+    .catch(err => console.error(err));
 }
