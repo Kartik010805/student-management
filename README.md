@@ -38,3 +38,12 @@ This project focuses on backend development fundamentals and containerization us
 ### Build Docker Image
 ```bash
 docker build -t springboot-crud-app .
+## 📡 API Endpoints
+
+| Method | Endpoint        | Description        |
+|--------|---------------|--------------------|
+| GET    | /api/items     | Get all items      |
+| GET    | /api/items/{id} | Get item by ID     |
+| POST   | /api/items     | Create new item    |
+| PUT    | /api/items/{id} | Update item        |
+| DELETE | /api/items/{id} | Delete item        |
